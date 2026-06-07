@@ -1956,6 +1956,10 @@ function renderPlanDocente() {
                 const hoyBadge = esHoy ? '<span style="font-size:9px;font-weight:800;background:#4f46e5;color:#fff;padding:1px 6px;border-radius:99px;margin-left:4px;">HOY</span>' : '';
 
                 const esExamen = e.tipo === 'examen';
+                const _ov = getPlanEdit(e.anio, e.f);
+                const _tShow = (_ov && _ov.tema) ? _ov.tema : e.t;
+                const _dShow = (_ov && _ov.dr !== undefined) ? _ov.dr : e.dr;
+                const _editBadge = _ov ? '<span style="font-size:8px;background:#fef3c7;color:#92400e;padding:1px 5px;border-radius:4px;font-weight:700;margin-left:4px;">editado</span>' : '';
                 return `<div style="padding:10px 20px;display:flex;align-items:flex-start;gap:12px;${rowOp}border-bottom:1px solid #f1f5f9;">
                     <div style="flex-shrink:0;text-align:center;min-width:44px;">
                         <div style="font-size:18px;font-weight:900;color:${fechaCol};line-height:1;">${dia}</div>
@@ -1966,8 +1970,8 @@ function renderPlanDocente() {
                             <span style="font-size:10px;font-weight:700;padding:1px 8px;border-radius:99px;${tc.badgeBg}">${tc.badge}</span>
                             ${hoyBadge}
                         </div>
-                        <p style="font-size:${esExamen?'13px':'12px'};font-weight:${esExamen?'800':'600'};color:${esExamen?'#991b1b':'#1e293b'};line-height:1.4;">${e.t}</p>
-                        ${e.dr ? `<p style="font-size:11px;color:#6366f1;font-weight:600;margin-top:1px;">${e.dr}</p>` : ''}
+                        <p style="font-size:${esExamen?'13px':'12px'};font-weight:${esExamen?'800':'600'};color:${esExamen?'#991b1b':'#1e293b'};line-height:1.4;">${_tShow}${_editBadge}</p>
+                        ${_dShow ? `<p style="font-size:11px;color:#6366f1;font-weight:600;margin-top:1px;">${_dShow}</p>` : ''}
                     </div>
                 </div>`;
             }).join('');
