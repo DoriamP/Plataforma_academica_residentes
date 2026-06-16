@@ -397,6 +397,52 @@
         </div>
     </section>
 
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <!-- SECCIÓN: ROTACIONES (colapsable)                          -->
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <div class="bg-white rounded-2xl shadow border border-slate-200 overflow-hidden">
+        <button onclick="toggleRotaciones()"
+            class="w-full text-left bg-gradient-to-r from-cyan-800 to-sky-900 px-5 py-4 text-white flex items-center justify-between focus:outline-none">
+            <div class="flex items-center gap-3">
+                <svg class="w-5 h-5 text-cyan-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                </svg>
+                <div>
+                    <h2 class="font-bold text-sm">Rotaciones</h2>
+                    <p class="text-xs text-cyan-200 mt-0.5">Calendario de rotaciones prácticas · Curso 2026 – 2027</p>
+                </div>
+            </div>
+            <svg id="rotacionesChevron" class="w-5 h-5 text-cyan-200 transition-transform duration-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        <div id="rotacionesPanel" class="hidden">
+            <!-- Filtros: por especialista o por residente -->
+            <div class="px-5 py-4 bg-slate-50 border-b border-slate-200 flex flex-wrap gap-3 items-end">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Ver por</label>
+                    <select id="rotModo" onchange="cambiarModoRot()"
+                        class="px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-cyan-500 outline-none appearance-none">
+                        <option value="especialista">Especialista</option>
+                        <option value="residente">Médico residente</option>
+                    </select>
+                </div>
+                <div id="rotWrapEsp">
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Especialista / Rotación</label>
+                    <select id="filtroEspecialistaRot" onchange="renderRotaciones()"
+                        class="px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-cyan-500 outline-none appearance-none"></select>
+                </div>
+                <div id="rotWrapRes" class="hidden">
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Médico residente</label>
+                    <select id="filtroResidenteRot" onchange="renderRotaciones()"
+                        class="px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-cyan-500 outline-none appearance-none"></select>
+                </div>
+                <p class="ml-auto self-center text-xs text-slate-400 font-medium italic">Mismo color = misma fecha de rotación</p>
+            </div>
+            <div id="rotacionesContent" class="p-5"></div>
+        </div>
+    </div>
+
 </div><!-- /max-w-4xl -->
 </div><!-- /mainContent -->
 
@@ -2046,6 +2092,176 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(scrollFechasAHoy, 200);
     fetchTemas().then(function() { renderClases(); });
 });
+
+// ══════════════════════════════════════════════════════════════════════
+// ROTACIONES PRÁCTICAS — Calendario 2026-2027 (filtro por especialista / residente)
+// ══════════════════════════════════════════════════════════════════════
+var ROTACIONES_ESP = [
+    { key:'craneo',     dr:'Dr. Zapata',  rot:'Cirugía Base de Cráneo' },
+    { key:'vascular',   dr:'Dr. Herrera', rot:'Cirugía Vascular' },
+    { key:'epilepsia',  dr:'Dr. Perera',  rot:'Cirugía Epilepsia y Funcional' },
+    { key:'oncologica', dr:'Dr. Matus',   rot:'Cirugía Oncológica' },
+    { key:'pediatrica', dr:'Dr. Pérez',   rot:'Cirugía Pediátrica' }
+];
+
+var ROTACIONES_PERIODOS = [
+    { rango:'4 mayo – 12 julio 2026',
+      craneo:['Dr. Rayo','Dr. Cuadra','Dra. Quintana'],
+      vascular:['Dra. Membreño','Dr. Cerrato'],
+      epilepsia:['Dra. Abarca','Dra. Olivas'],
+      oncologica:['Dr. Reynoso','Dra. Díaz'],
+      pediatrica:['Dra. Blandón','Dr. Bobb'] },
+    { rango:'13 julio – 27 septiembre 2026',
+      craneo:['Dra. Blandón','Dra. Díaz'],
+      vascular:['Dr. Rayo','Dra. Olivas'],
+      epilepsia:['Dra. Membreño','Dr. Cerrato','Dr. Bobb'],
+      oncologica:['Dra. Abarca','Dra. Quintana'],
+      pediatrica:['Dr. Reynoso','Dr. Cuadra'] },
+    { rango:'28 septiembre – 6 diciembre 2026',
+      craneo:['Dr. Reynoso','Dr. Bobb'],
+      vascular:['Dra. Blandón','Dr. Cuadra'],
+      epilepsia:['Dr. Rayo','Dra. Díaz'],
+      oncologica:['Dra. Membreño','Dra. Olivas'],
+      pediatrica:['Dra. Abarca','Dr. Cerrato','Dra. Quintana'] },
+    { rango:'7 diciembre 2026 – 14 febrero 2027',
+      craneo:['Dra. Abarca','Dr. Cerrato'],
+      vascular:['Dr. Reynoso','Dra. Díaz','Dr. Bobb'],
+      epilepsia:['Dra. Membreño','Dra. Quintana'],
+      oncologica:['Dr. Rayo','Dr. Cuadra'],
+      pediatrica:['Dra. Blandón','Dra. Olivas'] },
+    { rango:'15 febrero – 31 abril 2027',
+      craneo:['Dra. Membreño','Dra. Olivas'],
+      vascular:['Dra. Abarca','Dra. Quintana'],
+      epilepsia:['Dr. Reynoso','Dr. Cuadra'],
+      oncologica:['Dra. Blandón','Dr. Cerrato','Dr. Bobb'],
+      pediatrica:['Dr. Rayo','Dra. Díaz'] }
+];
+
+var ROT_COLORES = {
+    craneo:'#0e7490', vascular:'#b91c1c', epilepsia:'#6d28d9', oncologica:'#047857', pediatrica:'#b45309'
+};
+
+// Los residentes que rotan en las MISMAS fechas comparten color
+var PERIODO_COLORES = [
+    { bg:'#eff6ff', border:'#60a5fa', text:'#1e40af' },
+    { bg:'#f0fdf4', border:'#4ade80', text:'#166534' },
+    { bg:'#fef3c7', border:'#f59e0b', text:'#92400e' },
+    { bg:'#fae8ff', border:'#d946ef', text:'#86198f' },
+    { bg:'#ffe4e6', border:'#fb7185', text:'#9f1239' }
+];
+
+var _rotInit = false;
+function toggleRotaciones() {
+    var panel   = document.getElementById('rotacionesPanel');
+    var chevron = document.getElementById('rotacionesChevron');
+    panel.classList.toggle('hidden');
+    chevron.style.transform = panel.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+    if (!_rotInit && !panel.classList.contains('hidden')) { initRotaciones(); _rotInit = true; }
+}
+
+function listaResidentesRot() {
+    var vistos = {}, out = [];
+    ROTACIONES_PERIODOS.forEach(function(p){
+        ROTACIONES_ESP.forEach(function(e){
+            (p[e.key]||[]).forEach(function(r){ if(!vistos[r]){ vistos[r]=true; out.push(r); } });
+        });
+    });
+    return out.sort();
+}
+
+function initRotaciones() {
+    var selE = document.getElementById('filtroEspecialistaRot');
+    selE.innerHTML = '<option value="all">Todas las rotaciones</option>'
+        + ROTACIONES_ESP.map(function(e){ return '<option value="'+e.key+'">'+e.rot+' — '+e.dr+'</option>'; }).join('');
+    var selR = document.getElementById('filtroResidenteRot');
+    selR.innerHTML = '<option value="all">Todos los residentes</option>'
+        + listaResidentesRot().map(function(r){ return '<option value="'+r+'">'+r+'</option>'; }).join('');
+    renderRotaciones();
+}
+
+function cambiarModoRot() {
+    var modo = document.getElementById('rotModo').value;
+    document.getElementById('rotWrapEsp').classList.toggle('hidden', modo !== 'especialista');
+    document.getElementById('rotWrapRes').classList.toggle('hidden', modo !== 'residente');
+    renderRotaciones();
+}
+
+function legendaPeriodosRot() {
+    return '<div class="flex flex-wrap gap-2 mb-4">'
+        + ROTACIONES_PERIODOS.map(function(p,pi){ var pc=PERIODO_COLORES[pi % PERIODO_COLORES.length];
+            return '<span style="background:'+pc.bg+';color:'+pc.text+';border:1px solid '+pc.border+';" class="text-xs font-semibold px-2 py-1 rounded-md">'+p.rango+'</span>'; }).join('')
+        + '</div>';
+}
+
+function tablaEspecialistaHTML(esp) {
+    var col = ROT_COLORES[esp.key] || '#0e7490';
+    var rows = '';
+    ROTACIONES_PERIODOS.forEach(function(p, pi) {
+        var pc = PERIODO_COLORES[pi % PERIODO_COLORES.length];
+        (p[esp.key] || []).forEach(function(res) {
+            rows += '<tr>'
+                + '<td style="background:'+pc.bg+';border-left:4px solid '+pc.border+';color:'+pc.text+';" class="px-4 py-2 text-sm font-semibold border-b border-white">' + res + '</td>'
+                + '<td style="background:'+pc.bg+';color:'+pc.text+';" class="px-4 py-2 text-sm border-b border-white">' + p.rango + '</td>'
+                + '</tr>';
+        });
+    });
+    return '<div class="rounded-xl border border-slate-200 overflow-hidden mb-6">'
+        + '<div style="background:' + col + ';" class="px-4 py-3 text-white">'
+        +   '<p class="font-bold text-sm">' + esp.dr + '</p>'
+        +   '<p class="text-xs opacity-90">' + esp.rot + '</p>'
+        + '</div>'
+        + '<div class="overflow-x-auto"><table class="w-full">'
+        +   '<thead><tr class="bg-slate-100">'
+        +     '<th class="px-4 py-2 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Médico residente</th>'
+        +     '<th class="px-4 py-2 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Fechas de rotación</th>'
+        +   '</tr></thead>'
+        +   '<tbody>' + rows + '</tbody>'
+        + '</table></div></div>';
+}
+
+function tablaResidenteHTML(resName) {
+    var rows = '';
+    ROTACIONES_PERIODOS.forEach(function(p, pi) {
+        var pc = PERIODO_COLORES[pi % PERIODO_COLORES.length];
+        var espMatch = null;
+        ROTACIONES_ESP.forEach(function(e){ if ((p[e.key]||[]).indexOf(resName) !== -1) espMatch = e; });
+        if (espMatch) {
+            rows += '<tr>'
+                + '<td style="background:'+pc.bg+';border-left:4px solid '+pc.border+';color:'+pc.text+';" class="px-4 py-2 text-sm font-semibold border-b border-white">' + p.rango + '</td>'
+                + '<td style="background:'+pc.bg+';color:'+pc.text+';" class="px-4 py-2 text-sm border-b border-white">' + espMatch.rot + ' — ' + espMatch.dr + '</td>'
+                + '</tr>';
+        }
+    });
+    return '<div class="rounded-xl border border-slate-200 overflow-hidden mb-6">'
+        + '<div style="background:#0f172a;" class="px-4 py-3 text-white">'
+        +   '<p class="font-bold text-sm">' + resName + '</p>'
+        +   '<p class="text-xs opacity-90">Rotaciones del curso 2026 – 2027</p>'
+        + '</div>'
+        + '<div class="overflow-x-auto"><table class="w-full">'
+        +   '<thead><tr class="bg-slate-100">'
+        +     '<th class="px-4 py-2 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Fechas de rotación</th>'
+        +     '<th class="px-4 py-2 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Rotación / Especialista</th>'
+        +   '</tr></thead>'
+        +   '<tbody>' + rows + '</tbody>'
+        + '</table></div></div>';
+}
+
+function renderRotaciones() {
+    var modoEl = document.getElementById('rotModo');
+    var modo = modoEl ? modoEl.value : 'especialista';
+    var cont = document.getElementById('rotacionesContent');
+    var html = legendaPeriodosRot();
+    if (modo === 'residente') {
+        var vr = document.getElementById('filtroResidenteRot').value;
+        var listaR = (vr === 'all') ? listaResidentesRot() : [vr];
+        html += listaR.map(tablaResidenteHTML).join('');
+    } else {
+        var ve = document.getElementById('filtroEspecialistaRot').value;
+        var listaE = (ve === 'all') ? ROTACIONES_ESP : ROTACIONES_ESP.filter(function(e){ return e.key === ve; });
+        html += listaE.map(tablaEspecialistaHTML).join('');
+    }
+    cont.innerHTML = html + '<p class="text-xs text-slate-400 italic mt-2">Calendario de Rotaciones Prácticas — Curso Académico 2026 – 2027.</p>';
+}
 </script>
 </body>
 </html>
