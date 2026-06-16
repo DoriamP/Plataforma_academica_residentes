@@ -673,6 +673,7 @@ const MODULOS_FECHAS = [
 
 const PESOS = {
     "Clases Programadas":          { peso: 30, tipo: "Teórico" },
+    "Clases de Investigación":     { peso: 0,  tipo: "Informativo" },
     "Casos Clínicos y Artículos":  { peso: 20, tipo: "Teórico" },
     "Sesiones Diarias":            { peso: 20, tipo: "Teórico" },
     "Examen":                      { peso: 30, tipo: "Teórico" },
@@ -681,6 +682,7 @@ const PESOS = {
 
 const COLORES_COMP = {
     "Clases Programadas":         "#6366f1",
+    "Clases de Investigación":    "#0d9488",
     "Casos Clínicos y Artículos": "#8b5cf6",
     "Sesiones Diarias":           "#0ea5e9",
     "Examen":                     "#f59e0b",
@@ -1410,7 +1412,7 @@ function renderNotas(residente, filas) {
                 c2Suma: 0, c2Count: 0,
                 c3Suma: 0, c3Count: 0,
                 comentariosList: [],
-                maxPosible: r._comp === "Clases Programadas" ? 30 : (r._comp === "Casos Clínicos y Artículos" ? 20 : 20)
+                maxPosible: r._comp === "Clases Programadas" ? 30 : (r._comp === "Clases de Investigación" ? 100 : (r._comp === "Casos Clínicos y Artículos" ? 20 : 20))
             };
         }
         if (r.fecha) {
@@ -1427,17 +1429,17 @@ function renderNotas(residente, filas) {
         let c2 = parseInt(r.criterio2 || r.score2 || r.aspecto2);
         let c3 = parseInt(r.criterio3 || r.score3 || 0);
         if (!isNaN(c1)) {
-            let maxC1 = r._comp === "Clases Programadas" ? 10 : (r._comp === "Casos Clínicos y Artículos" ? 7 : 40);
+            let maxC1 = r._comp === "Clases Programadas" ? 10 : (r._comp === "Clases de Investigación" ? 35 : (r._comp === "Casos Clínicos y Artículos" ? 7 : 40));
             if (r._comp === "Sesiones Diarias") maxC1 = 10;
             gruposDiarios[clave].c1Suma += (c1 / maxC1) * 100; gruposDiarios[clave].c1Count++;
         }
         if (!isNaN(c2)) {
-            let maxC2 = r._comp === "Clases Programadas" ? 10 : (r._comp === "Casos Clínicos y Artículos" ? 6 : 30);
+            let maxC2 = r._comp === "Clases Programadas" ? 10 : (r._comp === "Clases de Investigación" ? 35 : (r._comp === "Casos Clínicos y Artículos" ? 6 : 30));
             if (r._comp === "Sesiones Diarias") maxC2 = 10;
             gruposDiarios[clave].c2Suma += (c2 / maxC2) * 100; gruposDiarios[clave].c2Count++;
         }
         if (!isNaN(c3) && r._comp !== "Sesiones Diarias") {
-            let maxC3 = r._comp === "Clases Programadas" ? 10 : (r._comp === "Casos Clínicos y Artículos" ? 7 : 30);
+            let maxC3 = r._comp === "Clases Programadas" ? 10 : (r._comp === "Clases de Investigación" ? 30 : (r._comp === "Casos Clínicos y Artículos" ? 7 : 30));
             gruposDiarios[clave].c3Suma += (c3 / maxC3) * 100; gruposDiarios[clave].c3Count++;
         }
     });
@@ -1459,6 +1461,11 @@ function renderNotas(residente, filas) {
             if (g.componente === "Práctica Quirúrgica") {
                 aspectoA = "Adecuada Preparación Académica para el Caso";
                 aspectoB = "Habilidad Técnica y Destreza con Instrumentos";
+            }
+            if (g.componente === "Clases de Investigación") {
+                aspectoA = "Estructura y Organización de la Presentación";
+                aspectoB = "Dominio del Tema y Manejo de Preguntas";
+                aspectoC = "Aplicación a la Práctica Clínica e Investigación";
             }
             const colorBadge = promGlobal >= 70 ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-red-50 text-red-700 border-red-200';
             const nFechas = g.fechasSet.size;
