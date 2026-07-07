@@ -443,6 +443,165 @@
         </div>
     </div>
 
+
+        <!-- PROCEDIMIENTOS QUIRÚRGICOS NECESARIOS DE LOS RESIDENTES (colapsable) -->
+        <section class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <button onclick="var p=document.getElementById('procQuirPanel'),c=document.getElementById('procQuirChevron'); p.classList.toggle('hidden'); c.style.transform=p.classList.contains('hidden')?'rotate(0deg)':'rotate(180deg)';"
+                class="w-full text-left bg-gradient-to-r from-emerald-900 to-teal-800 px-5 py-4 text-white flex items-center justify-between focus:outline-none">
+                <div class="flex items-center gap-3">
+                    <svg class="w-5 h-5 text-emerald-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                    </svg>
+                    <div>
+                        <h3 class="font-bold text-sm">Procedimientos Quirúrgicos Necesarios de los Residentes de Neurocirugía</h3>
+                        <p class="text-xs text-emerald-200 mt-0.5">Por año de residencia · Siempre con supervisión</p>
+                    </div>
+                </div>
+                <svg id="procQuirChevron" class="w-5 h-5 text-emerald-200 transition-transform duration-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+            </button>
+            <div id="procQuirPanel" class="hidden">
+                <div class="px-5 py-5 space-y-6">
+
+                    <!-- I – III AÑO -->
+                    <div class="rounded-xl border border-blue-200 overflow-hidden">
+                        <div class="bg-blue-50 px-4 py-3 border-b border-blue-200">
+                            <p class="text-sm font-black text-blue-900">I – III AÑO</p>
+                            <p class="text-xs text-blue-700 mt-0.5 font-semibold">Procedimientos completos — estas cirugías el residente debe realizarlas solo, pero con supervisión</p>
+                        </div>
+                        <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                        <p class="text-xs font-black text-slate-700 uppercase tracking-wide mb-1.5">TRAUMA CRANEAL</p>
+                        <ul class="space-y-1">
+                            <li class="text-xs text-slate-600 leading-snug flex gap-1.5"><span class="text-blue-600 font-bold flex-shrink-0">•</span><span>Trépanos (DVE, monitor de PIC, reservorio)</span></li>
+                            <li class="text-xs text-slate-600 leading-snug flex gap-1.5"><span class="text-blue-600 font-bold flex-shrink-0">•</span><span>Hematoma subdural crónico</span></li>
+                            <li class="text-xs text-slate-600 leading-snug flex gap-1.5"><span class="text-blue-600 font-bold flex-shrink-0">•</span><span>Craneotomía (extradural, subdural, hematoma intracerebral, contusiones)</span></li>
+                            <li class="text-xs text-slate-600 leading-snug flex gap-1.5"><span class="text-blue-600 font-bold flex-shrink-0">•</span><span>Fractura craneal deprimida</span></li>
+                            <li class="text-xs text-slate-600 leading-snug flex gap-1.5"><span class="text-blue-600 font-bold flex-shrink-0">•</span><span>Reparación dural (fístula de LCR)</span></li>
+                            <li class="text-xs text-slate-600 leading-snug flex gap-1.5"><span class="text-blue-600 font-bold flex-shrink-0">•</span><span>Craneoplastía</span></li>
+                        </ul>
+                    </div>
+                    <div class="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                        <p class="text-xs font-black text-slate-700 uppercase tracking-wide mb-1.5">NEUROCIRUGÍA VASCULAR</p>
+                        <ul class="space-y-1">
+                            <li class="text-xs text-slate-600 leading-snug flex gap-1.5"><span class="text-blue-600 font-bold flex-shrink-0">•</span><span>Hematoma (intracerebral espontáneo e intracerebelosa)</span></li>
+                        </ul>
+                    </div>
+                    <div class="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                        <p class="text-xs font-black text-slate-700 uppercase tracking-wide mb-1.5">HIDROCEFALIA (≥16 AÑOS)</p>
+                        <ul class="space-y-1">
+                            <li class="text-xs text-slate-600 leading-snug flex gap-1.5"><span class="text-blue-600 font-bold flex-shrink-0">•</span><span>Derivación ventriculoperitoneal (DVP)</span></li>
+                            <li class="text-xs text-slate-600 leading-snug flex gap-1.5"><span class="text-blue-600 font-bold flex-shrink-0">•</span><span>Revisión de DVP</span></li>
+                            <li class="text-xs text-slate-600 leading-snug flex gap-1.5"><span class="text-blue-600 font-bold flex-shrink-0">•</span><span>Derivación ventricular externa</span></li>
+                        </ul>
+                    </div>
+                    <div class="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                        <p class="text-xs font-black text-slate-700 uppercase tracking-wide mb-1.5">TÉCNICAS BÁSICAS</p>
+                        <ul class="space-y-1">
+                            <li class="text-xs text-slate-600 leading-snug flex gap-1.5"><span class="text-blue-600 font-bold flex-shrink-0">•</span><span>Craneotomía supratentorial</span></li>
+                            <li class="text-xs text-slate-600 leading-snug flex gap-1.5"><span class="text-blue-600 font-bold flex-shrink-0">•</span><span>Osteoma</span></li>
+                            <li class="text-xs text-slate-600 leading-snug flex gap-1.5"><span class="text-blue-600 font-bold flex-shrink-0">•</span><span>Lavado quirúrgico</span></li>
+                        </ul>
+                    </div>
+                    <div class="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                        <p class="text-xs font-black text-slate-700 uppercase tracking-wide mb-1.5">TRAUMA CRANEAL Y ESPINAL</p>
+                        <ul class="space-y-1">
+                            <li class="text-xs text-slate-600 leading-snug flex gap-1.5"><span class="text-blue-600 font-bold flex-shrink-0">•</span><span>Trépanos, monitor de PIC</span></li>
+                            <li class="text-xs text-slate-600 leading-snug flex gap-1.5"><span class="text-blue-600 font-bold flex-shrink-0">•</span><span>Hematoma subdural crónico, higroma</span></li>
+                            <li class="text-xs text-slate-600 leading-snug flex gap-1.5"><span class="text-blue-600 font-bold flex-shrink-0">•</span><span>Hematoma subdural o epidural</span></li>
+                        </ul>
+                    </div>
+                        </div>
+                    </div>
+
+                    <!-- IV y V AÑO -->
+                    <div class="rounded-xl border border-rose-200 overflow-hidden">
+                        <div class="bg-rose-50 px-4 py-3 border-b border-rose-200">
+                            <p class="text-sm font-black text-rose-900">IV y V AÑO</p>
+                            <p class="text-xs text-rose-700 mt-0.5 font-semibold">Además de todos los procedimientos completos de I – III año, abordajes parcial o totalmente — estas cirugías el residente debe realizarlas solo en la parte inicial del abordaje o en su totalidad según sus habilidades, pero con supervisión</p>
+                        </div>
+                        <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                        <p class="text-xs font-black text-slate-700 uppercase tracking-wide mb-1.5">LESIONES Y TUMORES SUPRATENTORIALES</p>
+                        <ul class="space-y-1">
+                            <li class="text-xs text-slate-600 leading-snug flex gap-1.5"><span class="text-rose-600 font-bold flex-shrink-0">•</span><span>Glioma</span></li>
+                            <li class="text-xs text-slate-600 leading-snug flex gap-1.5"><span class="text-rose-600 font-bold flex-shrink-0">•</span><span>Metástasis</span></li>
+                            <li class="text-xs text-slate-600 leading-snug flex gap-1.5"><span class="text-rose-600 font-bold flex-shrink-0">•</span><span>Meningioma</span></li>
+                            <li class="text-xs text-slate-600 leading-snug flex gap-1.5"><span class="text-rose-600 font-bold flex-shrink-0">•</span><span>Biopsia tumoral guiada por estereotaxia o imagen</span></li>
+                            <li class="text-xs text-slate-600 leading-snug flex gap-1.5"><span class="text-rose-600 font-bold flex-shrink-0">•</span><span>Adenoma hipofisiario</span></li>
+                            <li class="text-xs text-slate-600 leading-snug flex gap-1.5"><span class="text-rose-600 font-bold flex-shrink-0">•</span><span>Otras lesiones (epidermoide, quiste aracnoideo, etc.)</span></li>
+                        </ul>
+                    </div>
+                    <div class="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                        <p class="text-xs font-black text-slate-700 uppercase tracking-wide mb-1.5">INFECCIÓN CRANEAL / ESPINAL</p>
+                        <ul class="space-y-1">
+                            <li class="text-xs text-slate-600 leading-snug flex gap-1.5"><span class="text-rose-600 font-bold flex-shrink-0">•</span><span>Absceso / Empiema subdural</span></li>
+                        </ul>
+                    </div>
+                    <div class="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                        <p class="text-xs font-black text-slate-700 uppercase tracking-wide mb-1.5">COLUMNA</p>
+                        <ul class="space-y-1">
+                            <li class="text-xs text-slate-600 leading-snug flex gap-1.5"><span class="text-rose-600 font-bold flex-shrink-0">•</span><span>Enfermedad discal cervical espondilótica (descompresión anterior / foraminotomía)</span></li>
+                            <li class="text-xs text-slate-600 leading-snug flex gap-1.5"><span class="text-rose-600 font-bold flex-shrink-0">•</span><span>Enfermedad discal espondilótica y estenosis espinal — laminectomía</span></li>
+                            <li class="text-xs text-slate-600 leading-snug flex gap-1.5"><span class="text-rose-600 font-bold flex-shrink-0">•</span><span>Trauma espinal</span></li>
+                            <li class="text-xs text-slate-600 leading-snug flex gap-1.5"><span class="text-rose-600 font-bold flex-shrink-0">•</span><span>Instrumentación cervical (anterior / posterior)</span></li>
+                            <li class="text-xs text-slate-600 leading-snug flex gap-1.5"><span class="text-rose-600 font-bold flex-shrink-0">•</span><span>Instrumentación espinal posterior</span></li>
+                            <li class="text-xs text-slate-600 leading-snug flex gap-1.5"><span class="text-rose-600 font-bold flex-shrink-0">•</span><span>Tumores espinales</span></li>
+                        </ul>
+                    </div>
+                    <div class="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                        <p class="text-xs font-black text-slate-700 uppercase tracking-wide mb-1.5">LESIONES DE FOSA POSTERIOR</p>
+                        <ul class="space-y-1">
+                            <li class="text-xs text-slate-600 leading-snug flex gap-1.5"><span class="text-rose-600 font-bold flex-shrink-0">•</span><span>Tumores primarios y metastásicos</span></li>
+                            <li class="text-xs text-slate-600 leading-snug flex gap-1.5"><span class="text-rose-600 font-bold flex-shrink-0">•</span><span>Malformación de Chiari</span></li>
+                            <li class="text-xs text-slate-600 leading-snug flex gap-1.5"><span class="text-rose-600 font-bold flex-shrink-0">•</span><span>Craneotomía de fosa posterior</span></li>
+                            <li class="text-xs text-slate-600 leading-snug flex gap-1.5"><span class="text-rose-600 font-bold flex-shrink-0">•</span><span>Otras lesiones</span></li>
+                        </ul>
+                    </div>
+                    <div class="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                        <p class="text-xs font-black text-slate-700 uppercase tracking-wide mb-1.5">NEUROCIRUGÍA VASCULAR</p>
+                        <ul class="space-y-1">
+                            <li class="text-xs text-slate-600 leading-snug flex gap-1.5"><span class="text-rose-600 font-bold flex-shrink-0">•</span><span>Clipaje de aneurisma</span></li>
+                            <li class="text-xs text-slate-600 leading-snug flex gap-1.5"><span class="text-rose-600 font-bold flex-shrink-0">•</span><span>MAV (malformación arteriovenosa)</span></li>
+                            <li class="text-xs text-slate-600 leading-snug flex gap-1.5"><span class="text-rose-600 font-bold flex-shrink-0">•</span><span>Malformación cavernosa</span></li>
+                            <li class="text-xs text-slate-600 leading-snug flex gap-1.5"><span class="text-rose-600 font-bold flex-shrink-0">•</span><span>Angiografía cerebral diagnóstica</span></li>
+                            <li class="text-xs text-slate-600 leading-snug flex gap-1.5"><span class="text-rose-600 font-bold flex-shrink-0">•</span><span>Embolización endovascular de aneurisma</span></li>
+                        </ul>
+                    </div>
+                    <div class="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                        <p class="text-xs font-black text-slate-700 uppercase tracking-wide mb-1.5">HIDROCEFALIA</p>
+                        <ul class="space-y-1">
+                            <li class="text-xs text-slate-600 leading-snug flex gap-1.5"><span class="text-rose-600 font-bold flex-shrink-0">•</span><span>Septostomía endoscópica intraventricular</span></li>
+                        </ul>
+                    </div>
+                    <div class="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                        <p class="text-xs font-black text-slate-700 uppercase tracking-wide mb-1.5">BASE DE CRÁNEO</p>
+                        <ul class="space-y-1">
+                            <li class="text-xs text-slate-600 leading-snug flex gap-1.5"><span class="text-rose-600 font-bold flex-shrink-0">•</span><span>Neuralgia trigeminal: descompresión microvascular</span></li>
+                            <li class="text-xs text-slate-600 leading-snug flex gap-1.5"><span class="text-rose-600 font-bold flex-shrink-0">•</span><span>Craneofaringioma</span></li>
+                            <li class="text-xs text-slate-600 leading-snug flex gap-1.5"><span class="text-rose-600 font-bold flex-shrink-0">•</span><span>Tumor del ángulo pontocerebeloso</span></li>
+                            <li class="text-xs text-slate-600 leading-snug flex gap-1.5"><span class="text-rose-600 font-bold flex-shrink-0">•</span><span>Meningioma de base de cráneo</span></li>
+                            <li class="text-xs text-slate-600 leading-snug flex gap-1.5"><span class="text-rose-600 font-bold flex-shrink-0">•</span><span>Adenoma hipofisiario</span></li>
+                            <li class="text-xs text-slate-600 leading-snug flex gap-1.5"><span class="text-rose-600 font-bold flex-shrink-0">•</span><span>Tumores malignos de base de cráneo</span></li>
+                        </ul>
+                    </div>
+                    <div class="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                        <p class="text-xs font-black text-slate-700 uppercase tracking-wide mb-1.5">NEUROCIRUGÍA FUNCIONAL</p>
+                        <ul class="space-y-1">
+                            <li class="text-xs text-slate-600 leading-snug flex gap-1.5"><span class="text-rose-600 font-bold flex-shrink-0">•</span><span>DBS, talamotomía, palidotomía</span></li>
+                            <li class="text-xs text-slate-600 leading-snug flex gap-1.5"><span class="text-rose-600 font-bold flex-shrink-0">•</span><span>Cirugía para epilepsia</span></li>
+                            <li class="text-xs text-slate-600 leading-snug flex gap-1.5"><span class="text-rose-600 font-bold flex-shrink-0">•</span><span>Electroestimulación terapéutica</span></li>
+                            <li class="text-xs text-slate-600 leading-snug flex gap-1.5"><span class="text-rose-600 font-bold flex-shrink-0">•</span><span>Implantación de puertos / bombas de administración de medicamentos intratecal</span></li>
+                        </ul>
+                    </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
 </div><!-- /max-w-4xl -->
 </div><!-- /mainContent -->
 
@@ -848,14 +1007,14 @@ const CLASES = [
     { f:"29/05/2026", tema:"Presentación de caso clínico",                                                                                                                                                          anio:"V",   dr:"Dra. Membreño" },
     { f:"05/06/2026", tema:"Malformaciones arteriovenosas: Principios, fisiología, anatomía, epidemiología, localización, criterios quirúrgicos/endovasculares, criterios para tratamiento",                        anio:"V",   dr:"Dra. Abarca" },
     { f:"12/06/2026", tema:"Malformaciones arteriovenosas: manejo microquirúrgico",                                                                                                                                  anio:"V",   dr:"Dra. Abarca" },
-    { f:"19/06/2026", tema:"Malformaciones arteriovenosas: manejo endovascular",                                                                                                                                     anio:"V",   dr:"Dra. Abarca" },
-    { f:"26/06/2026", tema:"Investigación: variable de respuesta",                                                                                                                                                   anio:"V",   dr:"Dra. Abarca" },
-    { f:"03/07/2026", tema:"Aneurismas cerebrales: Generalidades, clasificación, criterios quirúrgicos, conservador, endovasculares, aneurismas tratados, cuando volver a tratarlos, complicaciones, aneurismas rotos, no rotos", anio:"V",   dr:"Dra. Membreño" },
+    { f:"19/06/2026", tema:"Aneurismas cerebrales: Generalidades, clasificación, criterios quirúrgicos, conservador, endovasculares, aneurismas tratados, cuando volver a tratarlos, complicaciones, aneurismas rotos, no rotos", anio:"V",   dr:"Dra. Membreño" },
+    { f:"26/06/2026", tema:"Malformaciones arteriovenosas: manejo microquirúrgico y manejo endovascular",                                                                                                                 anio:"V",   dr:"Dra. Abarca" },
+    { f:"03/07/2026", tema:"Investigación: variable de respuesta",                                                                                                                                                   anio:"V",   dr:"Dra. Abarca" },
     { f:"10/07/2026", tema:"Aneurismas cerebrales: Manejo quirúrgico para ACI, AcomA, ACM",                                                                                                                         anio:"V",   dr:"Dra. Abarca" },
     { f:"17/07/2026", tema:"Aneurismas cerebrales: Manejo endovascular para ACI, AcomA, ACM",                                                                                                                       anio:"V",   dr:"Dra. Membreño" },
-    { f:"24/07/2026", tema:"Revisión de un tema y artículos científicos",                                                                                                                                            anio:"V",   dr:"Dra. Abarca" },
+    { f:"24/07/2026", tema:"Revisión de un tema y artículos científicos — Guías AHA Stroke",                                                                                                                                            anio:"V",   dr:"Dra. Abarca" },
     { f:"31/07/2026", tema:"Investigación: población de estudio",                                                                                                                                                    anio:"V",   dr:"Dra. Membreño" },
-    { f:"07/08/2026", tema:"Revisión de un tema y artículos científicos",                                                                                                                                            anio:"V",   dr:"Dra. Membreño" },
+    { f:"07/08/2026", tema:"Revisión de un tema y artículos científicos — Guías AHA Stroke",                                                                                                                                            anio:"V",   dr:"Dra. Membreño" },
     { f:"04/09/2026", tema:"Endoscopia ventricular",                                                                                                                                                                 anio:"V",   dr:"Dra. Abarca" },
     { f:"18/09/2026", tema:"Craneosinostosis no sindrómica",                                        anio:"V",   dr:"Dra. Membreño" },
     { f:"25/09/2026", tema:"Presentación de caso clínico",                                          anio:"V",   dr:"Dra. Abarca" },
@@ -1913,9 +2072,9 @@ const PLAN_DOCENTE_COMPLETO = [
     {anio:'V',mod:'I',   f:'29/05/2026',t:'Presentación de caso clínico',                                               dr:'Dra. Membreño',tipo:'caso'},
     {anio:'V',mod:'I',   f:'05/06/2026',t:'Malformaciones arteriovenosas: Principios, fisiología, anatomía, epidemiología, localización, criterios quirúrgicos/endovasculares, criterios para tratamiento',dr:'Dra. Abarca',tipo:'clase'},
     {anio:'V',mod:'I',   f:'12/06/2026',t:'Malformaciones arteriovenosas: manejo microquirúrgico',                      dr:'Dra. Abarca',  tipo:'clase'},
-    {anio:'V',mod:'I',   f:'19/06/2026',t:'Malformaciones arteriovenosas: manejo endovascular',                         dr:'Dra. Abarca',  tipo:'clase'},
-    {anio:'V',mod:'I',   f:'26/06/2026',t:'Investigación: variable de respuesta',                                       dr:'Dra. Abarca',  tipo:'clase'},
-    {anio:'V',mod:'I',   f:'03/07/2026',t:'Aneurismas cerebrales: Generalidades, clasificación, criterios quirúrgicos, conservador, endovasculares, aneurismas tratados, complicaciones, aneurismas rotos, no rotos',dr:'Dra. Membreño',tipo:'clase'},
+    {anio:'V',mod:'I',   f:'19/06/2026',t:'Aneurismas cerebrales: Generalidades, clasificación, criterios quirúrgicos, conservador, endovasculares, aneurismas tratados, cuando volver a tratarlos, complicaciones, aneurismas rotos, no rotos',dr:'Dra. Membreño',tipo:'clase'},
+    {anio:'V',mod:'I',   f:'26/06/2026',t:'Malformaciones arteriovenosas: manejo microquirúrgico y manejo endovascular',dr:'Dra. Abarca',  tipo:'clase'},
+    {anio:'V',mod:'I',   f:'03/07/2026',t:'Investigación: variable de respuesta',                                       dr:'Dra. Abarca',  tipo:'clase'},
     {anio:'V',mod:'I',   f:'10/07/2026',t:'Aneurismas cerebrales: Manejo quirúrgico para ACI, AcomA, ACM',              dr:'Dra. Abarca',  tipo:'clase'},
     {anio:'V',mod:'I',   f:'17/07/2026',t:'Aneurismas cerebrales: Manejo endovascular para ACI, AcomA, ACM',            dr:'Dra. Membreño',tipo:'clase'},
     {anio:'V',mod:'I',   f:'24/07/2026',t:'Revisión de un tema y artículos científicos — Guías AHA Stroke',             dr:'Dra. Abarca',  tipo:'revision'},
