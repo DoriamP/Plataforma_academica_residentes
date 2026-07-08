@@ -1532,7 +1532,8 @@ function renderNotas(residente, filas) {
     filas.forEach(r=>{
         const c=r._comp;
         const temaKey=((r.tema||r.surgeryType||"").toString().trim().toLowerCase().replace(/\s+/g,' '));
-        const k=_COMPS_TEMA.includes(c) ? (c+'||'+temaKey) : (c+'||'+(r.fecha||'')+'||'+temaKey);
+        const fpA=((r.fechaProg||'')+'').trim();
+        const k=_COMPS_TEMA.includes(c) ? (c+'||'+temaKey+'||'+fpA) : (c+'||'+(fpA||r.fecha||'')+'||'+temaKey);
         if(!porActividad[k]) porActividad[k]={comp:c,sum:0,count:0,mods:new Set()};
         porActividad[k].sum+=r._pct; porActividad[k].count++; porActividad[k].mods.add(r._modulo);
     });
@@ -1615,13 +1616,17 @@ function renderNotas(residente, filas) {
         const porTema = COMPS_POR_TEMA.includes(r._comp);
         const temaRaw = (r.tema || r.surgeryType || "Evaluación académica").trim();
         const temaKey = temaRaw.toLowerCase().replace(/\s+/g, ' ');
-        const clave   = porTema ? `${r._comp}||TEMA||${temaKey}` : `${r.fecha}||${r._comp}||${temaKey}`;
+        // Agrupación por CLASE: fecha programada (si existe; si no, fecha de
+        // evaluación) + componente + tema. El residente ya viene filtrado.
+        const fpKey   = ((r.fechaProg || '') + '').trim();
+        const clave   = porTema ? `${r._comp}||TEMA||${temaKey}||${fpKey}` : `${fpKey || r.fecha}||${r._comp}||${temaKey}`;
         if (!gruposDiarios[clave]) {
             gruposDiarios[clave] = {
                 fecha: r.fecha,
                 sortFecha: r.fecha,
                 fechasSet: new Set(),
                 esPorTema: porTema,
+                fechaProg: fpKey,
                 componente: r._comp,
                 tema: temaRaw,
                 evaluacionesCount: 0,
@@ -1690,6 +1695,7 @@ function renderNotas(residente, filas) {
             const metaChips = g.esPorTema
                 ? `<span class="text-[11px] font-bold px-2 py-0.5 rounded-md" style="background:${pal.accent}22;color:${pal.chipTxt};border:1px solid ${pal.accent}55;">${g.componente}</span>`
                   + `<span class="text-[11px] text-violet-600 font-bold bg-violet-50 px-2 py-0.5 rounded-md">Promedio de ${g.evaluacionesCount} evaluación${g.evaluacionesCount > 1 ? 'es' : ''}</span>`
+                  + (g.fechaProg ? `<span class="text-[11px] text-sky-700 font-bold bg-sky-50 px-2 py-0.5 rounded-md">Clase programada: ${g.fechaProg}</span>` : '')
                   + `<span class="text-[11px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">${nFechas} fecha${nFechas > 1 ? 's' : ''}</span>`
                 : `<span class="text-[11px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-100">${g.fecha}</span>`
                   + `<span class="text-[11px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">${g.componente}</span>`
