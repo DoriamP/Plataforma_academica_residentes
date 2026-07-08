@@ -1524,14 +1524,27 @@ function mostrarMsgNotas(txt) {
 }
 
 function renderNotas(residente, filas) {
-    const porComp={};
+    // Promedio en dos niveles: primero cada ACTIVIDAD (tema del residente; en los
+    // componentes diarios, tema + fecha) promedia sus evaluaciones (varios docentes
+    // pueden evaluar la misma actividad); luego el componente promedia sus actividades.
+    const _COMPS_TEMA=["Clases Programadas","Casos Clínicos y Artículos"];
+    const porActividad={};
     filas.forEach(r=>{
         const c=r._comp;
-        if(!porComp[c]) porComp[c]={sum:0,count:0,mods:new Set()};
-        porComp[c].sum+=r._pct; porComp[c].count++; porComp[c].mods.add(r._modulo);
+        const temaKey=((r.tema||r.surgeryType||"").toString().trim().toLowerCase().replace(/\s+/g,' '));
+        const k=_COMPS_TEMA.includes(c) ? (c+'||'+temaKey) : (c+'||'+(r.fecha||'')+'||'+temaKey);
+        if(!porActividad[k]) porActividad[k]={comp:c,sum:0,count:0,mods:new Set()};
+        porActividad[k].sum+=r._pct; porActividad[k].count++; porActividad[k].mods.add(r._modulo);
+    });
+    const porComp={};
+    Object.values(porActividad).forEach(a=>{
+        const c=a.comp;
+        if(!porComp[c]) porComp[c]={sumProm:0,acts:0,evals:0,mods:new Set()};
+        porComp[c].sumProm+=a.sum/a.count; porComp[c].acts++; porComp[c].evals+=a.count;
+        a.mods.forEach(m=>porComp[c].mods.add(m));
     });
     const compData={};
-    Object.keys(porComp).forEach(c=>{ compData[c]={promedio:Math.round(porComp[c].sum/porComp[c].count),count:porComp[c].count,modulos:[...porComp[c].mods].join(', ')}; });
+    Object.keys(porComp).forEach(c=>{ compData[c]={promedio:Math.round(porComp[c].sumProm/porComp[c].acts),count:porComp[c].evals,modulos:[...porComp[c].mods].join(', ')}; });
 
     let sumPT=0,sumPP=0,sumWT=0,sumWP=0;
     const filasTbl=[];
@@ -1602,7 +1615,7 @@ function renderNotas(residente, filas) {
         const porTema = COMPS_POR_TEMA.includes(r._comp);
         const temaRaw = (r.tema || r.surgeryType || "Evaluación académica").trim();
         const temaKey = temaRaw.toLowerCase().replace(/\s+/g, ' ');
-        const clave   = porTema ? `${r._comp}||TEMA||${temaKey}` : `${r.fecha}||${r._comp}`;
+        const clave   = porTema ? `${r._comp}||TEMA||${temaKey}` : `${r.fecha}||${r._comp}||${temaKey}`;
         if (!gruposDiarios[clave]) {
             gruposDiarios[clave] = {
                 fecha: r.fecha,
