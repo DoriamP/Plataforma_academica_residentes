@@ -2440,6 +2440,102 @@ function renderRotaciones() {
     }
     cont.innerHTML = html + '<p class="text-xs text-slate-400 italic mt-2">Calendario de Rotaciones Prácticas — Curso Académico 2026 – 2027.</p>';
 }
+
+// ══════════════════════════════════════════════════════════════════════
+// TEMAS SIMILARES — al escribir un tema (revisión / caso clínico) se
+// comparan las palabras con los temas ya guardados en la pestaña
+// "Tema_de_residentes" y se muestra una ventana emergente con coincidencias.
+// ══════════════════════════════════════════════════════════════════════
+let _temasGuardadosLista = null;
+let _temasGuardadosPromesa = null;
+let _temasSimTimer = null;
+
+const _TEMAS_STOPWORDS = new Set(['de','del','la','el','los','las','y','o','u','e','en','un','una','unos','unas','para','por','con','sin','a','al','se','que','su','sus','lo','es','mas','más','como','sobre','entre','tema','temas']);
+
+function _temasNorm(s) {
+    return (s || '').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+}
+function _temasPalabras(s) {
+    return _temasNorm(s).split(/[^a-z0-9ñ]+/).filter(w => w.length >= 3 && !_TEMAS_STOPWORDS.has(w));
+}
+function _cargarTemasGuardados() {
+    if (_temasGuardadosLista) return Promise.resolve(_temasGuardadosLista);
+    if (_temasGuardadosPromesa) return _temasGuardadosPromesa;
+    _temasGuardadosPromesa = fetch(`${URL_SCRIPT}?action=getTemas`, { mode:'cors' })
+        .then(r => r.json())
+        .then(d => { _temasGuardadosLista = Array.isArray(d) ? d.filter(t => t && t.tema) : []; return _temasGuardadosLista; })
+        .catch(() => { _temasGuardadosPromesa = null; return []; });
+    return _temasGuardadosPromesa;
+}
+function _popupTemasEl() {
+    let el = document.getElementById('temasSimilaresPopup');
+    if (!el) {
+        el = document.createElement('div');
+        el.id = 'temasSimilaresPopup';
+        el.style.cssText = 'display:none;position:fixed;z-index:9999;background:#fff;border:1.5px solid #fbbf24;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.18);max-width:340px;min-width:240px;max-height:260px;overflow-y:auto;';
+        document.body.appendChild(el);
+        // Cerrar al hacer clic fuera o con Escape
+        document.addEventListener('click', ev => { if (!el.contains(ev.target) && !(ev.target.id || '').startsWith('inp-')) _ocultarTemasSimilares(); });
+        document.addEventListener('keydown', ev => { if (ev.key === 'Escape') _ocultarTemasSimilares(); });
+        window.addEventListener('scroll', _ocultarTemasSimilares, true);
+    }
+    return el;
+}
+function _ocultarTemasSimilares() {
+    const el = document.getElementById('temasSimilaresPopup');
+    if (el) el.style.display = 'none';
+}
+function _resaltarCoincidencias(tema, palabras) {
+    let html = tema.replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    palabras.forEach(p => {
+        html = html.replace(new RegExp('([a-z0-9ñáéíóúü]*' + p.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + '[a-z0-9ñáéíóúü]*)','gi'), '<b style="color:#b45309;">$1</b>');
+    });
+    return html;
+}
+function mostrarTemasSimilares(input) {
+    clearTimeout(_temasSimTimer);
+    _temasSimTimer = setTimeout(() => {
+        const palabras = _temasPalabras(input.value);
+        if (!palabras.length) { _ocultarTemasSimilares(); return; }
+        _cargarTemasGuardados().then(lista => {
+            if (document.activeElement !== input) return; // el usuario ya salió del campo
+            const valNorm = _temasNorm(input.value).trim();
+            const similares = [];
+            const vistos = new Set();
+            lista.forEach(t => {
+                const temaNorm = _temasNorm(t.tema).trim();
+                if (!temaNorm || vistos.has(temaNorm + '|' + (t.anio||''))) return;
+                if (temaNorm === valNorm) return; // es exactamente lo que está escribiendo
+                const palabrasTema = new Set(_temasPalabras(t.tema));
+                const coincide = palabras.some(p => { for (const pt of palabrasTema) { if (pt === p || pt.indexOf(p) === 0 || p.indexOf(pt) === 0) return true; } return false; });
+                if (coincide) { vistos.add(temaNorm + '|' + (t.anio||'')); similares.push(t); }
+            });
+            const el = _popupTemasEl();
+            if (!similares.length) { el.style.display = 'none'; return; }
+            el.innerHTML = '<div style="position:sticky;top:0;background:#fffbeb;border-bottom:1px solid #fde68a;padding:7px 12px;font-size:10px;font-weight:800;color:#92400e;">⚠ Temas similares ya guardados (' + similares.length + ')</div>'
+                + similares.slice(0, 10).map(t =>
+                    '<div style="padding:7px 12px;border-bottom:1px solid #f1f5f9;">'
+                    + '<p style="font-size:11px;color:#334155;line-height:1.4;">' + _resaltarCoincidencias(t.tema, palabras) + '</p>'
+                    + '<p style="font-size:9px;color:#94a3b8;margin-top:2px;">' + (t.anio ? t.anio + ' año' : '') + (t.fecha ? ' · clase del ' + t.fecha : '') + (t.tipo ? ' · ' + t.tipo : '') + '</p>'
+                    + '</div>').join('')
+                + (similares.length > 10 ? '<p style="padding:6px 12px;font-size:9px;color:#94a3b8;font-style:italic;">…y ' + (similares.length - 10) + ' más</p>' : '');
+            const r = input.getBoundingClientRect();
+            const abajo = window.innerHeight - r.bottom > 200;
+            el.style.left = Math.max(8, Math.min(r.left, window.innerWidth - 348)) + 'px';
+            if (abajo) { el.style.top = (r.bottom + 4) + 'px'; el.style.bottom = 'auto'; }
+            else       { el.style.bottom = (window.innerHeight - r.top + 4) + 'px'; el.style.top = 'auto'; }
+            el.style.display = 'block';
+        });
+    }, 300);
+}
+// Delegación: cualquier campo de tema (inp-N) del carrusel activa la comparación
+document.addEventListener('input', ev => {
+    if (ev.target && /^inp-\d+$/.test(ev.target.id || '')) mostrarTemasSimilares(ev.target);
+});
+document.addEventListener('focusin', ev => {
+    if (ev.target && /^inp-\d+$/.test(ev.target.id || '')) { _cargarTemasGuardados(); if (ev.target.value.trim()) mostrarTemasSimilares(ev.target); }
+});
+
 </script>
 </body>
 </html>
