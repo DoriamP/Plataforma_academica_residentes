@@ -190,7 +190,7 @@
                     <select id="selModulo" class="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none appearance-none">
                         <option value="">— Todos —</option>
                         <option value="I">Módulo I</option><option value="II">Módulo II</option><option value="III">Módulo III</option>
-                        <option value="IV">Módulo IV</option><option value="V">Módulo V</option><option value="VI">Módulo VI</option>
+                        <option value="IV">Módulo IV</option><option value="Cierre">Cierre / Evaluación final</option>
                     </select>
                 </div>
             </div>
@@ -1408,9 +1408,59 @@ function scrollFechasAHoy() {
 // ──────────────────────────────────────────────────────────
 // Resto de funciones originales
 // ──────────────────────────────────────────────────────────
-function getModulo(fechaStr) {
+// ── Módulos según el PLAN DOCENTE COMPLETO 2026-2027 (por año de residencia) ──
+// Cada módulo comienza con su primera actividad programada y termina cuando
+// inicia el siguiente módulo de ESE año. Así, una evaluación de julio sigue
+// perteneciendo al Módulo I hasta que el año correspondiente inicie su Módulo II.
+const MODULOS_PLAN_FIJO = {
+    'I':   [ {mod:'I',inicio:'2026-05-25'}, {mod:'II',inicio:'2026-08-03'}, {mod:'III',inicio:'2026-10-26'}, {mod:'IV',inicio:'2027-01-11'}, {mod:'Cierre',inicio:'2027-03-15'} ],
+    'II':  [ {mod:'I',inicio:'2026-05-26'}, {mod:'II',inicio:'2026-09-01'}, {mod:'III',inicio:'2027-01-15'}, {mod:'Cierre',inicio:'2027-03-23'} ],
+    'III': [ {mod:'I',inicio:'2026-05-27'}, {mod:'II',inicio:'2026-09-02'}, {mod:'III',inicio:'2027-01-13'}, {mod:'Cierre',inicio:'2027-04-07'} ],
+    'IV':  [ {mod:'I',inicio:'2026-05-28'}, {mod:'II',inicio:'2026-09-03'}, {mod:'III',inicio:'2027-01-14'}, {mod:'Cierre',inicio:'2027-04-01'} ],
+    'V':   [ {mod:'I',inicio:'2026-05-29'}, {mod:'II',inicio:'2026-09-04'}, {mod:'III',inicio:'2026-12-04'}, {mod:'Cierre',inicio:'2027-02-19'} ],
+};
+let _modPlanCache = null;
+function _modulosPlan() {
+    if (_modPlanCache) return _modPlanCache;
+    let out = null;
+    // Si esta página tiene el Plan Docente Completo, los límites se derivan de él
+    if (typeof PLAN_DOCENTE_COMPLETO !== 'undefined' && Array.isArray(PLAN_DOCENTE_COMPLETO)) {
+        const acc = {};
+        PLAN_DOCENTE_COMPLETO.forEach(e => {
+            const d = parseFecha(e.f); if (!d) return;
+            acc[e.anio] = acc[e.anio] || {};
+            if (!acc[e.anio][e.mod] || d < acc[e.anio][e.mod]) acc[e.anio][e.mod] = d;
+        });
+        if (Object.keys(acc).length) {
+            out = {};
+            Object.keys(acc).forEach(a => {
+                out[a] = Object.keys(acc[a]).map(m => ({ mod:m, inicio:acc[a][m] })).sort((x,y) => x.inicio - y.inicio);
+            });
+        }
+    }
+    if (!out) {
+        out = {};
+        Object.keys(MODULOS_PLAN_FIJO).forEach(a => {
+            out[a] = MODULOS_PLAN_FIJO[a].map(m => ({ mod:m.mod, inicio:parseFecha(m.inicio) }));
+        });
+    }
+    _modPlanCache = out;
+    return out;
+}
+function _modulosDeAnio(anio) {
+    const p = _modulosPlan()[anio];
+    return p ? p.map(m => m.mod) : MODULOS_FECHAS.map(m => m.modulo);
+}
+function getModulo(fechaStr, anioRes) {
     const d = parseFecha(fechaStr);
     if (!d) return null;
+    const lista = anioRes ? _modulosPlan()[anioRes] : null;
+    if (lista && lista.length) {
+        let mod = lista[0].mod; // fechas previas al inicio del curso → Módulo I
+        for (const m of lista) { if (d >= m.inicio) mod = m.mod; else break; }
+        return mod;
+    }
+    // Respaldo (sin año conocido): rangos generales de calendario
     for (const m of MODULOS_FECHAS) {
         if (d >= new Date(m.inicio) && d <= new Date(m.fin)) return m.modulo;
     }
@@ -1509,7 +1559,7 @@ async function cargarNotas() {
     const filas = datos.filter(r=>(r.nombreResidente||r.residentName||r.residente||"").trim()===residente);
     if (!filas.length) { mostrarMsgNotas(`Sin evaluaciones para ${residente}.`); return; }
 
-    const filasConMod = filas.map(r=>({...r, _modulo:getModulo(r.fecha)||"Sin módulo", _pct:getPct(r), _comp:(r.tipo_evaluacion||"").trim()}));
+    const filasConMod = filas.map(r=>({...r, _modulo:getModulo(r.fecha, RESIDENTE_ANIO[residente])||"Sin módulo", _pct:getPct(r), _comp:(r.tipo_evaluacion||"").trim()}));
     const filasFiltr = moduloFiltro ? filasConMod.filter(r=>r._modulo===moduloFiltro) : filasConMod;
     if (!filasFiltr.length) { mostrarMsgNotas("No hay evaluaciones en el módulo seleccionado."); return; }
 
@@ -1799,7 +1849,7 @@ function renderPanelResidente(residente, anio, evalRes) {
     const ayer = new Date(); ayer.setHours(0,0,0,0); ayer.setDate(ayer.getDate()-1);
     const clasesAnio = CLASES.filter(c=>c.anio===anio && parseFecha(c.f)<=ayer).map(c=>({
         ...c,
-        modulo: getModulo(c.f)||"Sin módulo",
+        modulo: getModulo(c.f, anio)||"Sin módulo",
         tipo: getTipoClase(c.tema)
     }));
 
@@ -1814,12 +1864,12 @@ function renderPanelResidente(residente, anio, evalRes) {
     const pendientes = clasesConEstado.filter(c=>!c.evaluada);
     const completadas = clasesConEstado.filter(c=>c.evaluada);
 
-    const modulos = MODULOS_FECHAS.map(m=>m.modulo);
+    const modulos = _modulosDeAnio(anio);
     const modPract = {};
-    modulos.forEach(m=>{ modPract[m]=evalRes.some(ev=>(ev.tipo_evaluacion||"").trim()==="Práctica Quirúrgica"&&getModulo(ev.fecha)===m); });
+    modulos.forEach(m=>{ modPract[m]=evalRes.some(ev=>(ev.tipo_evaluacion||"").trim()==="Práctica Quirúrgica"&&getModulo(ev.fecha, anio)===m); });
 
     const modSesiones = {};
-    modulos.forEach(m=>{ modSesiones[m]=evalRes.filter(ev=>(ev.tipo_evaluacion||"").trim()==="Sesiones Diarias"&&getModulo(ev.fecha)===m).length; });
+    modulos.forEach(m=>{ modSesiones[m]=evalRes.filter(ev=>(ev.tipo_evaluacion||"").trim()==="Sesiones Diarias"&&getModulo(ev.fecha, anio)===m).length; });
 
     const pendPorMod = {};
     pendientes.forEach(c=>{ if(!pendPorMod[c.modulo]) pendPorMod[c.modulo]=[]; pendPorMod[c.modulo].push(c); });
