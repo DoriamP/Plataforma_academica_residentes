@@ -602,6 +602,69 @@
             </div>
         </section>
 
+
+    <!-- NOTAS DE ROTACIONES EXTERNAS (colapsable) -->
+    <section class="bg-white rounded-2xl shadow border border-slate-200 overflow-hidden">
+        <button onclick="toggleRotExternas()"
+            class="w-full text-left bg-gradient-to-r from-orange-800 to-amber-700 px-5 py-4 text-white flex items-center justify-between focus:outline-none">
+            <div class="flex items-center gap-3">
+                <svg class="w-5 h-5 text-amber-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                <div>
+                    <h3 class="font-bold text-sm">Notas de Rotaciones Externas</h3>
+                    <p class="text-xs text-amber-100 mt-0.5">Registre la rotación, sus notas teórica y práctica, y la foto de la evaluación escrita</p>
+                </div>
+            </div>
+            <svg id="rotExtChevron" class="w-5 h-5 text-amber-200 transition-transform duration-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        <div id="rotExtPanel" class="hidden">
+            <div class="p-5 space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Médico residente *</label>
+                        <select id="rotExtResidente"
+                            class="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 outline-none appearance-none"></select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">a) Nombre de la rotación evaluada *</label>
+                        <input id="rotExtNombre" type="text" placeholder="Ej.: Neurocirugía pediátrica — Hospital ..."
+                            class="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">b) Nota teórica (%)</label>
+                        <input id="rotExtTeorica" type="number" min="0" max="100" placeholder="0 – 100"
+                            class="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Nota práctica (%)</label>
+                        <input id="rotExtPractica" type="number" min="0" max="100" placeholder="0 – 100"
+                            class="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">c) Foto de la evaluación escrita *</label>
+                    <input id="rotExtFoto" type="file" accept="image/*" capture="environment" onchange="prepararFotoRotExt(this)"
+                        class="w-full text-sm text-slate-600 file:mr-3 file:px-4 file:py-2 file:border-0 file:rounded-lg file:bg-amber-100 file:text-amber-800 file:font-bold file:text-xs file:cursor-pointer bg-slate-50 border border-slate-200 rounded-xl p-2">
+                    <div id="rotExtPreviewWrap" class="hidden mt-2">
+                        <img id="rotExtPreview" alt="Vista previa" style="max-height:180px;border-radius:10px;border:1px solid #e2e8f0;">
+                    </div>
+                </div>
+                <div class="flex items-center gap-3 flex-wrap">
+                    <button onclick="guardarRotacionExterna()" id="btnGuardarRotExt"
+                        class="px-6 py-2.5 bg-amber-700 hover:bg-amber-800 active:scale-[0.98] text-white font-bold rounded-xl text-sm transition">
+                        💾 Guardar rotación
+                    </button>
+                    <span id="rotExtEstado" class="text-xs font-semibold text-slate-500"></span>
+                </div>
+                <div id="rotExtLista" class="pt-2"></div>
+            </div>
+        </div>
+    </section>
+
 </div><!-- /max-w-4xl -->
 </div><!-- /mainContent -->
 
@@ -824,17 +887,39 @@ const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbxyGCI2a75VauHRuL0Bw
 // ── Caché de temas manuales (sincronizado con Google Sheets) ──
 let _temasCache = {};
 
+// Normaliza la fecha de un tema a "dd/MM/yyyy" (acepta texto dd/M/yyyy,
+// yyyy-MM-dd o fechas ISO que devuelve Sheets cuando la celda quedó como Fecha)
+function _normFechaTema(f) {
+    if (!f) return '';
+    f = String(f).trim();
+    let m = f.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if (m) return ('0'+m[1]).slice(-2) + '/' + ('0'+m[2]).slice(-2) + '/' + m[3];
+    m = f.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+    if (m) return ('0'+m[3]).slice(-2) + '/' + ('0'+m[2]).slice(-2) + '/' + m[1];
+    if (f.indexOf('T') !== -1) {
+        const d = new Date(f);
+        if (!isNaN(d.getTime())) return ('0'+d.getDate()).slice(-2) + '/' + ('0'+(d.getMonth()+1)).slice(-2) + '/' + d.getFullYear();
+    }
+    return f;
+}
+
 async function fetchTemas() {
     try {
         const resp = await fetch(`${URL_SCRIPT}?action=getTemas`, { mode: 'cors' });
         const data = await resp.json();
         if (Array.isArray(data)) {
+            // Si hay filas duplicadas del mismo día/año se queda con la más
+            // reciente (ts, si el backend lo envía; si no, la última en la hoja).
+            const best = {};
             data.forEach(t => {
-                if (t.fecha && t.anio && t.tema) {
-                    const key = 'manual_tema_' + t.anio + '_' + t.fecha;
-                    _temasCache[key] = t.tema;
-                    localStorage.setItem(key, t.tema); // sincroniza localStorage
-                }
+                if (!t.fecha || !t.anio || !t.tema) return;
+                const key = 'manual_tema_' + String(t.anio).trim() + '_' + _normFechaTema(t.fecha);
+                const ts  = +t.ts || 0;
+                if (!(key in best) || ts >= best[key].ts) best[key] = { tema: t.tema, ts: ts };
+            });
+            Object.keys(best).forEach(key => {
+                _temasCache[key] = best[key].tema;
+                try { localStorage.setItem(key, best[key].tema); } catch(e){}
             });
         }
     } catch(e) { /* usa localStorage como fallback */ }
@@ -2585,6 +2670,142 @@ document.addEventListener('input', ev => {
 document.addEventListener('focusin', ev => {
     if (ev.target && /^inp-\d+$/.test(ev.target.id || '')) { _cargarTemasGuardados(); if (ev.target.value.trim()) mostrarTemasSimilares(ev.target); }
 });
+
+
+// ══════════════════════════════════════════════════════════════════════
+// NOTAS DE ROTACIONES EXTERNAS — registro con foto → hoja "Rotaciones_Externas"
+// ══════════════════════════════════════════════════════════════════════
+let _rotExtFotoData = '';
+let _rotExtInit = false;
+const _ROTEXT_MAX = 8 * 44000; // límite de la foto en base64 (8 celdas de Sheets)
+
+function toggleRotExternas() {
+    const panel = document.getElementById('rotExtPanel');
+    const chev  = document.getElementById('rotExtChevron');
+    panel.classList.toggle('hidden');
+    chev.style.transform = panel.classList.contains('hidden') ? '' : 'rotate(180deg)';
+    if (panel.classList.contains('hidden')) return;
+    if (!_rotExtInit) {
+        _rotExtInit = true;
+        const sel = document.getElementById('rotExtResidente');
+        sel.innerHTML = '<option value="" disabled selected>Seleccione al residente…</option>'
+            + Object.keys(RESIDENTE_ANIO).map(r => `<option value="${r}">${r} (${RESIDENTE_ANIO[r]} año)</option>`).join('');
+        // Un residente autenticado solo puede registrar sus propias rotaciones
+        if (_auth && !_auth.esDocente && !_auth.esSupervisor && _auth.residente) {
+            sel.value = _auth.residente;
+            sel.disabled = true;
+        }
+    }
+    cargarRotacionesExternas();
+}
+
+function prepararFotoRotExt(input) {
+    const file = input.files && input.files[0];
+    const estado = document.getElementById('rotExtEstado');
+    _rotExtFotoData = '';
+    document.getElementById('rotExtPreviewWrap').classList.add('hidden');
+    if (!file) return;
+    estado.textContent = 'Procesando foto…'; estado.style.color = '#6366f1';
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+        URL.revokeObjectURL(url);
+        // Compresión adaptativa hasta caber en la hoja de cálculo
+        const intentos = [ {max:1400,q:0.75}, {max:1100,q:0.65}, {max:900,q:0.55}, {max:700,q:0.45} ];
+        let data = '';
+        for (const t of intentos) {
+            const esc = Math.min(1, t.max / Math.max(img.width, img.height));
+            const cv = document.createElement('canvas');
+            cv.width  = Math.max(1, Math.round(img.width  * esc));
+            cv.height = Math.max(1, Math.round(img.height * esc));
+            cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+            data = cv.toDataURL('image/jpeg', t.q);
+            if (data.length <= _ROTEXT_MAX) break;
+        }
+        if (data.length > _ROTEXT_MAX) {
+            estado.textContent = '⚠️ La foto es demasiado grande incluso comprimida. Tome la foto más cerca o con menos resolución.';
+            estado.style.color = '#ef4444';
+            return;
+        }
+        _rotExtFotoData = data;
+        const prev = document.getElementById('rotExtPreview');
+        prev.src = data;
+        document.getElementById('rotExtPreviewWrap').classList.remove('hidden');
+        estado.textContent = '✓ Foto lista (' + Math.round(data.length * 0.75 / 1024) + ' KB)';
+        estado.style.color = '#10b981';
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); estado.textContent = '⚠️ No se pudo leer la imagen.'; estado.style.color = '#ef4444'; };
+    img.src = url;
+}
+
+function guardarRotacionExterna() {
+    const estado    = document.getElementById('rotExtEstado');
+    const residente = (document.getElementById('rotExtResidente').value || '').trim();
+    const rotacion  = (document.getElementById('rotExtNombre').value || '').trim();
+    const teorica   = (document.getElementById('rotExtTeorica').value || '').trim();
+    const practica  = (document.getElementById('rotExtPractica').value || '').trim();
+    if (!residente) { estado.textContent = '⚠️ Seleccione al residente.'; estado.style.color = '#ef4444'; return; }
+    if (!rotacion)  { estado.textContent = '⚠️ Escriba el nombre de la rotación.'; estado.style.color = '#ef4444'; return; }
+    if (!teorica && !practica) { estado.textContent = '⚠️ Ingrese al menos una nota (teórica o práctica).'; estado.style.color = '#ef4444'; return; }
+    if (!_rotExtFotoData) { estado.textContent = '⚠️ Tome o adjunte la foto de la evaluación escrita.'; estado.style.color = '#ef4444'; return; }
+    const btn = document.getElementById('btnGuardarRotExt');
+    btn.disabled = true; btn.textContent = 'Guardando…';
+    estado.textContent = 'Enviando a Google Sheets…'; estado.style.color = '#6366f1';
+    const body = new URLSearchParams({
+        action:       'saveRotacionExterna',
+        residente:    residente,
+        anio:         RESIDENTE_ANIO[residente] || '',
+        rotacion:     rotacion,
+        notaTeorica:  teorica,
+        notaPractica: practica,
+        comentarios:  '',
+        foto:         _rotExtFotoData
+    });
+    fetch(URL_SCRIPT, { method: 'POST', mode: 'no-cors', body: body })
+        .then(() => {
+            estado.textContent = '✓ Rotación guardada correctamente.'; estado.style.color = '#10b981';
+            document.getElementById('rotExtNombre').value = '';
+            document.getElementById('rotExtTeorica').value = '';
+            document.getElementById('rotExtPractica').value = '';
+            document.getElementById('rotExtFoto').value = '';
+            document.getElementById('rotExtPreviewWrap').classList.add('hidden');
+            _rotExtFotoData = '';
+            setTimeout(cargarRotacionesExternas, 2500); // dar tiempo a Sheets
+        })
+        .catch(() => { estado.textContent = '⚠️ Error de red. Intente de nuevo.'; estado.style.color = '#ef4444'; })
+        .finally(() => { btn.disabled = false; btn.textContent = '💾 Guardar rotación'; });
+}
+
+function cargarRotacionesExternas() {
+    const lista = document.getElementById('rotExtLista');
+    lista.innerHTML = '<p class="text-xs text-slate-400 italic">Cargando registros…</p>';
+    fetch(`${URL_SCRIPT}?action=getRotacionesExternas`, { mode: 'cors' })
+        .then(r => r.json())
+        .then(d => {
+            if (!Array.isArray(d)) { lista.innerHTML = ''; return; }
+            let regs = d;
+            // Un residente solo ve sus propios registros
+            if (_auth && !_auth.esDocente && !_auth.esSupervisor && _auth.residente) {
+                regs = d.filter(x => (x.residente || '').trim() === _auth.residente);
+            }
+            if (!regs.length) { lista.innerHTML = '<p class="text-xs text-slate-400 italic">Aún no hay rotaciones externas registradas.</p>'; return; }
+            const esc = t => String(t || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            lista.innerHTML = '<p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Registros guardados (' + regs.length + ')</p>'
+                + regs.sort((a, b) => (b.ts || 0) - (a.ts || 0)).map(x => `
+                <div class="flex items-start gap-3 p-3 bg-slate-50 border border-slate-200 rounded-xl mb-2">
+                    ${x.foto ? `<img src="${x.foto}" style="width:64px;height:64px;object-fit:cover;border-radius:8px;border:1px solid #e2e8f0;flex-shrink:0;cursor:pointer;" onclick="window.open().document.write('<img src=&quot;'+this.src+'&quot; style=&quot;max-width:100%&quot;>')">` : ''}
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-bold text-slate-800">${esc(x.rotacion)}</p>
+                        <p class="text-xs text-slate-500 mt-0.5">${esc(x.residente)} · ${esc(x.anio)} año${x.fecha ? ' · ' + esc(x.fecha) : ''}</p>
+                        <p class="text-xs mt-1">
+                            ${x.notaTeorica ? '<span style="background:#eef2ff;color:#3730a3;font-weight:800;padding:2px 8px;border-radius:99px;margin-right:4px;">Teórica: ' + esc(x.notaTeorica) + '%</span>' : ''}
+                            ${x.notaPractica ? '<span style="background:#ecfdf5;color:#065f46;font-weight:800;padding:2px 8px;border-radius:99px;">Práctica: ' + esc(x.notaPractica) + '%</span>' : ''}
+                        </p>
+                    </div>
+                </div>`).join('');
+        })
+        .catch(() => { lista.innerHTML = '<p class="text-xs text-amber-600">No se pudieron cargar los registros (¿backend sin republicar?).</p>'; });
+}
 
 </script>
 </body>
