@@ -2797,9 +2797,11 @@ function cargarRotacionesExternas() {
         .then(d => {
             if (!Array.isArray(d)) { lista.innerHTML = ''; return; }
             let regs = d;
-            // Un residente solo ve sus propios registros
-            if (_auth && !_auth.esDocente && !_auth.esSupervisor && _auth.residente) {
-                regs = d.filter(x => (x.residente || '').trim() === _auth.residente);
+            // Solo la cuenta docente (pereralumbi@gmail.com) ve TODOS los registros.
+            // Cualquier otra cuenta (residente o supervisor) ve únicamente los suyos.
+            if (!_auth || !_auth.esDocente) {
+                const propio = (_auth && _auth.residente) ? _auth.residente : '__nadie__';
+                regs = d.filter(x => (x.residente || '').trim() === propio);
             }
             if (!regs.length) { lista.innerHTML = '<p class="text-xs text-slate-400 italic">Aún no hay rotaciones externas registradas.</p>'; return; }
             const esc = t => String(t || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
